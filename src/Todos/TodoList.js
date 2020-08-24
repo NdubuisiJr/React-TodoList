@@ -2,28 +2,46 @@ import React, {useEffect} from 'react';
 import TodoListItem from './TodoListItem';
 import NewTodoForm from './NewTodoForm';
 import {connect} from 'react-redux';
+import styled from 'styled-components';
 import {fetchTodos, deleteTodo, updateTodo} from './thunk';
-import {getTodos, getIsLoading} from './selectors';
-import './TodoList.css';
+import {getIsLoading, getInCompletedTodos,getCompletedTodos} from './selectors';
 
-const TodoList = ({todos = [], onRemovedPressed, markAsCompletePressed, isLoading, startLoadingTodos}) =>{
+const TodoListLayout = styled.div`
+    max-width: 700px;
+    margin: auto;
+`;
+
+const LoadingLayout = styled.div`
+    max-width:700px;
+    margin: auto;
+    color: #f00;
+`;
+
+const TodoList = ({completedTodos = [], inCompletedTodos=[], onRemovedPressed, markAsCompletePressed, isLoading, startLoadingTodos}) =>{
     useEffect(()=>{
         startLoadingTodos();
     },[]);
-    const Loading = <div>is Loading...</div>;
+    const Loading = <LoadingLayout>is Loading...</LoadingLayout>;
 
-    const content = <div className='TodoList'>
+    const content = <TodoListLayout>
                         <NewTodoForm />
-                        {todos.map(todo=> 
+                        <h3>Incomplete Todos</h3>
+                        {inCompletedTodos.map(todo=> 
                             <TodoListItem key={todo.text} todo={todo}
                             removedPressed={onRemovedPressed} completedPressed = {markAsCompletePressed}/>
                         )}
-                    </div>
+                        <h3>Completed Todos</h3>
+                        {completedTodos.map(todo=> 
+                            <TodoListItem key={todo.text} todo={todo}
+                            removedPressed={onRemovedPressed} completedPressed = {markAsCompletePressed}/>
+                        )}
+                    </TodoListLayout>
     return isLoading? Loading: content;
 }
 
 const mapStateToProps = state =>({
-    todos: getTodos(state),
+    completedTodos: getCompletedTodos(state),
+    inCompletedTodos: getInCompletedTodos(state),
     isLoading: getIsLoading(state),
 });
 
